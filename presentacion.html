@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Reminder System – Desafío Técnico</title>
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #28303b;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --accent2:   #3fb950;
+      --accent3:   #f78166;
+      --accent4:   #d2a8ff;
+      --warn:      #e3b341;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --radius:    12px;
+      --slide-w:   1280px;
+      --slide-h:   720px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    /* progress bar */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--accent);
+      transition: width .35s ease;
+      z-index: 100;
+    }
+
+    /* ============================================================
+       SLIDE CONTAINER
+    ============================================================ */
+    #deck {
+      position: relative;
+      width: var(--slide-w);
+      height: var(--slide-h);
+      overflow: hidden;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 48px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(60px);
+      transition: opacity .37s ease, transform .37s ease;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* A subtle grid decoration */
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: .065;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       SLIDE TYPES
+    ============================================================ */
+
+    /* ---- COVER ---- */
+    .slide-cover {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(88,166,255,.12) 0%, transparent 70%),
+        var(--surface);
+      text-align: center;
+      align-items: center;
+    }
+
+    .slide-cover .tag {
+      font-size: .75rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+
+    .slide-cover h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+
+    .slide-cover h1 span { color: var(--accent); }
+
+    .slide-cover .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .slide-cover .pills {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: .75rem;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .pill-green  { background: rgba(63,185,80,.15);  color: var(--accent2); }
+    .pill-blue   { background: rgba(88,166,255,.15); color: var(--accent); }
+    .pill-purple { background: rgba(210,168,255,.15);color: var(--accent4); }
+    .pill-orange { background: rgba(227,179,65,.15); color: var(--warn); }
+    .pill-red    { background: rgba(247,129,102,.15);color: var(--accent3); }
+
+    /* ---- CONTENT SLIDE ---- */
+    .slide-content h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-content h2 .icon {
+      display: inline-flex;
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue   { background: rgba(88,166,255,.2);  color: var(--accent); }
+    .icon-green  { background: rgba(63,185,80,.2);   color: var(--accent2); }
+    .icon-purple { background: rgba(210,168,255,.2); color: var(--accent4); }
+    .icon-orange { background: rgba(227,179,65,.2);  color: var(--warn); }
+    .icon-red    { background: rgba(247,129,102,.2); color: var(--accent3); }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    p.lead {
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    /* ============================================================
+       BULLET LIST
+    ============================================================ */
+    ul.bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+
+    ul.bullets li::before {
+      content: '▸';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    ul.bullets li strong { color: var(--text); }
+    ul.bullets li .muted { color: var(--muted); }
+
+    /* ============================================================
+       TABLE
+    ============================================================ */
+    table.slide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .86rem;
+    }
+
+    table.slide-table th {
+      background: rgba(88,166,255,.1);
+      color: var(--accent);
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    table.slide-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(48,54,61,.5);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    table.slide-table tr:last-child td { border-bottom: none; }
+
+    .method {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .method-get  { background: rgba(63,185,80,.15);  color: var(--accent2); }
+    .method-post { background: rgba(88,166,255,.15); color: var(--accent); }
+
+    .http-code {
+      font-family: monospace;
+      font-size: .8rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .code-200 { background: rgba(63,185,80,.15);  color: var(--accent2); }
+    .code-201 { background: rgba(88,166,255,.15); color: var(--accent); }
+    .code-400 { background: rgba(227,179,65,.15); color: var(--warn); }
+    .code-404 { background: rgba(247,129,102,.15);color: var(--accent3); }
+    .code-500 { background: rgba(210,168,255,.15);color: var(--accent4); }
+
+    /* ============================================================
+       CODE BLOCKS
+    ============================================================ */
+    pre.code-block {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: .78rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    pre.code-block .lang-tag {
+      position: absolute;
+      top: 8px; right: 12px;
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .tok-key    { color: #ff7b72; }  /* red   — keywords/fields */
+    .tok-str    { color: #a5d6ff; }  /* blue  — strings         */
+    .tok-num    { color: #79c0ff; }  /* light blue — numbers    */
+    .tok-bool   { color: #d2a8ff; }  /* purple — booleans       */
+    .tok-cmt    { color: #8b949e; font-style: italic; }
+    .tok-cmd    { color: #3fb950; }  /* green  — shell commands  */
+    .tok-path   { color: #f0883e; }  /* orange — paths          */
+    .tok-dir    { color: var(--accent); }
+    .tok-commit { color: var(--accent2); }
+
+    /* ============================================================
+       TWO-COLUMN GRID
+    ============================================================ */
+    .cols-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .cols-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ============================================================
+       CARD
+    ============================================================ */
+    .card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .card h3 {
+      font-size: .85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card p, .card li {
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       CALLOUT
+    ============================================================ */
+    .callout {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: .83rem;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .callout-blue   { background: rgba(88,166,255,.1);  border-left: 3px solid var(--accent); }
+    .callout-green  { background: rgba(63,185,80,.1);   border-left: 3px solid var(--accent2); }
+    .callout-orange { background: rgba(227,179,65,.1);  border-left: 3px solid var(--warn);    }
+    .callout-red    { background: rgba(247,129,102,.1); border-left: 3px solid var(--accent3); }
+
+    /* ============================================================
+       BADGE STEP
+    ============================================================ */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: .87rem;
+    }
+
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .75rem;
+      flex-shrink: 0;
+    }
+
+    .step-body { line-height: 1.5; }
+    .step-body strong { display: block; color: var(--text); font-size: .88rem; }
+    .step-body span   { color: var(--muted); font-size: .8rem; }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    #nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      background: rgba(13,17,23,.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 16px;
+    }
+
+    .nav-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, border-color .2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(88,166,255,.12);
+      border-color: var(--accent);
+    }
+
+    .nav-btn:disabled { opacity: .3; cursor: default; }
+
+    #slide-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+
+    #hint {
+      font-size: .7rem;
+      color: var(--muted);
+      opacity: .6;
+      position: fixed;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      z-index: 200;
+    }
+
+    #slide-counter {
+      position: fixed;
+      top: 12px;
+      right: 18px;
+      font-size: .75rem;
+      color: var(--muted);
+      z-index: 200;
+      background: rgba(13,17,23,.6);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ============================================================
+       SLIDE-SPECIFIC HELPERS
+    ============================================================ */
+    .slide-number-badge {
+      font-size: .68rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    code.inline {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'Cascadia Code', monospace;
+      font-size: .85em;
+      color: var(--accent);
+    }
+
+    .accent { color: var(--accent); }
+    .accent2 { color: var(--accent2); }
+    .accent3 { color: var(--accent3); }
+    .accent4 { color: var(--accent4); }
+    .warn    { color: var(--warn); }
+
+    /* ============================================================
+       SCALE deck to always fill the viewport (letterbox)
+    ============================================================ */
+    #deck-wrapper {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="app">
+  <div id="deck-wrapper">
+    <div id="deck">
+
+    <!-- ========================================================
+         SLIDE 1 — COVER
+    ========================================================= -->
+    <div class="slide slide-cover active" id="s0">
+      <span class="tag">Desafío Técnico · Junior Full Stack</span>
+      <h1>Invoice <span>Reminder</span> System</h1>
+      <p class="subtitle">
+        Simulás un sistema de gestión de facturas: detectás vencimientos y enviás recordatorios de pago.<br>
+        <strong style="color:var(--text)">Tu misión: extender el backend.</strong>
+      </p>
+      <div class="pills">
+        <span class="pill pill-green">Node.js ≥ 18</span>
+        <span class="pill pill-blue">Express</span>
+        <span class="pill pill-purple">REST API</span>
+        <span class="pill pill-orange">Git + PR</span>
+        <span class="pill pill-red">4 Tareas</span>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 2 — DESCRIPCIÓN
+    ========================================================= -->
+    <div class="slide slide-content" id="s1">
+      <h2><span class="icon icon-blue">📋</span> ¿De qué se trata?</h2>
+      <div class="divider"></div>
+      <p class="lead">El backend base ya está implementado. Tu trabajo es <strong>extenderlo</strong> con endpoints nuevos, validaciones y manejo de errores correcto.</p>
+
+      <div class="cols-2" style="margin-top:4px">
+        <div class="card">
+          <h3><span class="accent">✓</span> Lo que ya existe</h3>
+          <ul style="list-style:none;margin-top:4px;display:flex;flex-direction:column;gap:6px">
+            <li style="font-size:.82rem"><span class="method method-get">GET</span> <code class="inline">/invoices</code> — listar facturas</li>
+            <li style="font-size:.82rem"><span class="method method-post">POST</span> <code class="inline">/invoices</code> — crear factura</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="accent3">✗</span> Lo que falta (tus tareas)</h3>
+          <ul style="list-style:none;margin-top:4px;display:flex;flex-direction:column;gap:5px">
+            <li style="font-size:.82rem;color:var(--muted)">▸ Detectar facturas vencidas</li>
+            <li style="font-size:.82rem;color:var(--muted)">▸ Enviar recordatorios de pago</li>
+            <li style="font-size:.82rem;color:var(--muted)">▸ Validaciones de entrada</li>
+            <li style="font-size:.82rem;color:var(--muted)">▸ Códigos HTTP correctos</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-blue" style="margin-top:16px">
+        💡 <span>No buscamos algoritmos complejos. Queremos ver cómo <strong>razonás</strong>, cómo <strong>organizás</strong> tu código y cómo <strong>tomás decisiones</strong> técnicas simples pero correctas.</span>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 3 — MODELO DE DATOS
+    ========================================================= -->
+    <div class="slide slide-content" id="s2">
+      <h2><span class="icon icon-purple">🗂️</span> Modelo de datos</h2>
+      <div class="divider"></div>
+      <p class="lead">Cada factura tiene la siguiente forma:</p>
+
+      <pre class="code-block"><span class="lang-tag">JSON</span>{
+  <span class="tok-key">"id"</span>:            <span class="tok-num">1</span>,
+  <span class="tok-key">"clientName"</span>:   <span class="tok-str">"Empresa ACME"</span>,
+  <span class="tok-key">"amount"</span>:        <span class="tok-num">120000</span>,
+  <span class="tok-key">"dueDate"</span>:       <span class="tok-str">"2026-02-10"</span>,   <span class="tok-cmt">// fecha de vencimiento</span>
+  <span class="tok-key">"status"</span>:        <span class="tok-str">"pending"</span>,      <span class="tok-cmt">// "pending" | "paid"</span>
+  <span class="tok-key">"reminderSent"</span>: <span class="tok-bool">false</span>            <span class="tok-cmt">// ¿se envió recordatorio?</span>
+}</pre>
+
+      <div class="callout callout-orange" style="margin-top:14px">
+        ⚠️ <span><strong>Clave conceptual:</strong> una factura puede ser <code class="inline">pending</code> sin estar <em>vencida</em>. Está vencida cuando <code class="inline">status === "pending"</code> <strong>y</strong> <code class="inline">dueDate</code> es anterior a hoy.</span>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 4 — INSTALACIÓN
+    ========================================================= -->
+    <div class="slide slide-content" id="s3">
+      <h2><span class="icon icon-green">⚙️</span> Instalación y arranque</h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <p style="font-size:.78rem;color:var(--accent2);font-weight:700;margin-bottom:6px;letter-spacing:.06em">BACKEND</p>
+          <pre class="code-block" style="font-size:.76rem"><span class="tok-cmd">cd</span> <span class="tok-path">backend</span>
+<span class="tok-cmd">npm install</span>
+<span class="tok-cmd">npm run dev</span>
+
+<span class="tok-cmt"># Corre en:</span>
+<span class="tok-path">http://localhost:3001</span></pre>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--accent);font-weight:700;margin-bottom:6px;letter-spacing:.06em">FRONTEND</p>
+          <pre class="code-block" style="font-size:.76rem"><span class="tok-cmd">cd</span> <span class="tok-path">frontend</span>
+<span class="tok-cmd">npm install</span>
+<span class="tok-cmd">npm run dev</span>
+
+<span class="tok-cmt"># Corre en:</span>
+<span class="tok-path">http://localhost:5173</span></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-green" style="margin-top:14px">
+        ✅ <span>Al iniciar el backend por primera vez se cargan automáticamente facturas de ejemplo mediante un <strong>seed</strong>. El frontend es solo una interfaz mínima — el <strong>foco es el backend</strong>.</span>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 5 — TAREA 1
+    ========================================================= -->
+    <div class="slide slide-content" id="s4">
+      <h2>
+        <span class="icon icon-blue">1️⃣</span>
+        <span>Tarea 1 — <code class="inline">GET /invoices/overdue</code></span>
+        <span class="pill pill-blue slide-number-badge" style="margin-left:auto">Endpoint nuevo</span>
+      </h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">Una factura está vencida cuando cumple <strong>ambas</strong> condiciones:</p>
+          <ul class="bullets">
+            <li><code class="inline">status</code> es <code class="inline">"pending"</code></li>
+            <li><code class="inline">dueDate</code> es anterior a la fecha actual</li>
+          </ul>
+          <div class="callout callout-blue" style="margin-top:12px;font-size:.78rem">
+            📌 <span>Responder <code class="inline">200</code> con el array (puede ser vacío).</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">Respuesta esperada <span class="http-code code-200">200</span></p>
+          <pre class="code-block" style="font-size:.72rem"><span class="lang-tag">JSON</span>[
+  {
+    <span class="tok-key">"id"</span>: <span class="tok-num">1</span>,
+    <span class="tok-key">"clientName"</span>: <span class="tok-str">"Empresa ACME"</span>,
+    <span class="tok-key">"amount"</span>: <span class="tok-num">120000</span>,
+    <span class="tok-key">"dueDate"</span>: <span class="tok-str">"2026-01-20"</span>,
+    <span class="tok-key">"status"</span>: <span class="tok-str">"pending"</span>,
+    <span class="tok-key">"reminderSent"</span>: <span class="tok-bool">false</span>
+  }
+]</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 6 — TAREA 2
+    ========================================================= -->
+    <div class="slide slide-content" id="s5">
+      <h2>
+        <span class="icon icon-orange">2️⃣</span>
+        <span>Tarea 2 — <code class="inline">POST /reminders/:invoiceId</code></span>
+        <span class="pill pill-orange slide-number-badge" style="margin-left:auto">Endpoint nuevo</span>
+      </h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">El endpoint debe:</p>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>Verificar que la factura exista</strong>
+                <span>→ Responder <code class="inline">404</code> si no se encuentra</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>Marcar <code class="inline">reminderSent = true</code></strong>
+                <span>en la factura correspondiente</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <strong>Simular el envío</strong>
+                <span>→ <code class="inline">console.log</code> del recordatorio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">Respuesta esperada <span class="http-code code-200">200</span></p>
+          <pre class="code-block" style="font-size:.72rem"><span class="lang-tag">JSON</span>{
+  <span class="tok-key">"message"</span>: <span class="tok-str">"Recordatorio enviado
+            a Empresa ACME"</span>,
+  <span class="tok-key">"invoice"</span>: { <span class="tok-cmt">...</span> }
+}</pre>
+          <div class="callout callout-orange" style="margin-top:10px;font-size:.76rem">
+            ⚠️ <span><strong>Sugerencia:</strong> Revisá el código existente con atención. Puede haber comportamientos inesperados.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 7 — TAREA 3
+    ========================================================= -->
+    <div class="slide slide-content" id="s6">
+      <h2>
+        <span class="icon icon-red">3️⃣</span>
+        <span>Tarea 3 — Validaciones en <code class="inline">POST /invoices</code></span>
+        <span class="pill pill-red slide-number-badge" style="margin-left:auto">Validaciones</span>
+      </h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">Validar antes de crear la factura:</p>
+          <ul class="bullets">
+            <li><code class="inline">clientName</code> es <strong>obligatorio</strong></li>
+            <li><code class="inline">amount</code> debe ser <strong>mayor a 0</strong></li>
+            <li><code class="inline">dueDate</code> debe ser una <strong>fecha válida</strong></li>
+          </ul>
+          <div class="callout callout-blue" style="margin-top:12px;font-size:.78rem">
+            💡 <span>Mensajes de error claros y específicos para el usuario.</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">Respuesta esperada <span class="http-code code-400">400</span></p>
+          <pre class="code-block" style="font-size:.76rem"><span class="lang-tag">JSON</span>{
+  <span class="tok-key">"error"</span>: <span class="tok-str">"El campo clientName
+          es obligatorio"</span>
+}</pre>
+          <p style="font-size:.78rem;color:var(--muted);margin-top:10px;font-weight:600">Si todo está bien <span class="http-code code-201">201</span></p>
+          <pre class="code-block" style="font-size:.76rem;margin-top:4px"><span class="lang-tag">JSON</span>{
+  <span class="tok-key">"id"</span>: <span class="tok-num">11</span>,
+  <span class="tok-key">"clientName"</span>: <span class="tok-str">"Nueva SA"</span>,
+  <span class="tok-cmt">...</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 8 — TAREA 4
+    ========================================================= -->
+    <div class="slide slide-content" id="s7">
+      <h2>
+        <span class="icon icon-purple">4️⃣</span>
+        <span>Tarea 4 — Manejo de errores HTTP</span>
+        <span class="pill pill-purple slide-number-badge" style="margin-left:auto">Revisión</span>
+      </h2>
+      <div class="divider"></div>
+      <p class="lead">Revisá todos los endpoints existentes y nuevos. Asegurate de usar siempre el código correcto:</p>
+
+      <table class="slide-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cuándo usarlo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="http-code code-200">200</span></td><td>Operación exitosa</td></tr>
+          <tr><td><span class="http-code code-201">201</span></td><td>Recurso creado correctamente</td></tr>
+          <tr><td><span class="http-code code-400">400</span></td><td>Error de validación (datos incorrectos del cliente)</td></tr>
+          <tr><td><span class="http-code code-404">404</span></td><td>Recurso no encontrado</td></tr>
+          <tr><td><span class="http-code code-500">500</span></td><td>Error interno del servidor</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 9 — BONUS
+    ========================================================= -->
+    <div class="slide slide-content" id="s8">
+      <h2>
+        <span class="icon icon-green">⭐</span>
+        <span>Bonus opcional — <code class="inline">GET /invoices/stats</code></span>
+        <span class="pill pill-green slide-number-badge" style="margin-left:auto">Opcional</span>
+      </h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">Implementar un endpoint que devuelva estadísticas generales del sistema.</p>
+
+          <div class="callout callout-orange">
+            💡 <span><strong>Tip:</strong> Una factura puede estar <code class="inline">pending</code> sin estar <code class="inline">overdue</code>. Pensá bien la diferencia entre ambos conceptos antes de calcular los números.</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">Respuesta esperada <span class="http-code code-200">200</span></p>
+          <pre class="code-block"><span class="lang-tag">JSON</span>{
+  <span class="tok-key">"total"</span>:   <span class="tok-num">10</span>,
+  <span class="tok-key">"pending"</span>: <span class="tok-num">5</span>,
+  <span class="tok-key">"paid"</span>:    <span class="tok-num">3</span>,
+  <span class="tok-key">"overdue"</span>: <span class="tok-num">2</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 10 — ESTRUCTURA
+    ========================================================= -->
+    <div class="slide slide-content" id="s9">
+      <h2><span class="icon icon-blue">📁</span> Estructura del proyecto</h2>
+      <div class="divider"></div>
+      <pre class="code-block" style="font-size:.76rem;line-height:1.7"><span class="tok-dir">invoice-reminder-challenge/</span>
+├── <span class="tok-dir">backend/</span>
+│   └── <span class="tok-dir">src/</span>
+│       ├── <span class="tok-path">app.js</span>                    <span class="tok-cmt"># Entry point — configura Express y rutas</span>
+│       ├── <span class="tok-dir">controllers/</span>
+│       │   └── <span class="tok-path">invoicesController.js</span> <span class="tok-cmt"># Manejo de requests HTTP</span>
+│       ├── <span class="tok-dir">db/</span>
+│       │   ├── <span class="tok-path">database.js</span>           <span class="tok-cmt"># Capa de persistencia (JSON)</span>
+│       │   └── <span class="tok-path">seed.js</span>               <span class="tok-cmt"># Datos iniciales de ejemplo</span>
+│       ├── <span class="tok-dir">routes/</span>
+│       │   └── <span class="tok-path">invoicesRoutes.js</span>     <span class="tok-cmt"># Definición de rutas</span>
+│       └── <span class="tok-dir">services/</span>
+│           └── <span class="tok-path">invoiceService.js</span>     <span class="tok-cmt"># Lógica de negocio ← acá va tu código</span>
+└── <span class="tok-dir">frontend/</span>
+    └── <span class="tok-dir">src/</span>
+        ├── <span class="tok-path">App.jsx</span>               <span class="tok-cmt"># Componente principal</span>
+        └── <span class="tok-path">api.js</span>                <span class="tok-cmt"># Funciones para llamar al backend</span></pre>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 11 — GIT
+    ========================================================= -->
+    <div class="slide slide-content" id="s10">
+      <h2><span class="icon icon-orange">🌿</span> Trabajo con Git</h2>
+      <div class="divider"></div>
+
+      <div class="cols-2">
+        <div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>Clonar el repositorio</strong>
+                <pre class="code-block" style="font-size:.7rem;margin-top:4px"><span class="tok-cmd">git clone</span> &lt;repo-url&gt;
+<span class="tok-cmd">cd</span> <span class="tok-path">invoice-reminder-challenge</span></pre>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>Crear tu rama</strong>
+                <pre class="code-block" style="font-size:.7rem;margin-top:4px"><span class="tok-cmd">git checkout -b</span> <span class="tok-path">feature/tu-nombre</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">Commits claros y atómicos:</p>
+          <pre class="code-block" style="font-size:.72rem"><span class="tok-commit">feat:</span> add GET /invoices/overdue endpoint
+<span class="tok-commit">feat:</span> add POST /reminders/:invoiceId
+<span class="tok-commit">fix:</span>  add input validations to POST /invoices
+<span class="tok-commit">fix:</span>  improve error handling HTTP codes</pre>
+          <div class="callout callout-blue" style="margin-top:10px;font-size:.76rem">
+            📝 <span>Al terminar, abrí un <strong>Pull Request</strong> hacia <code class="inline">main</code> con qué implementaste, decisiones técnicas y qué mejorarías.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 12 — CRITERIOS DE EVALUACIÓN
+    ========================================================= -->
+    <div class="slide slide-content" id="s11">
+      <h2><span class="icon icon-green">📊</span> Criterios de evaluación</h2>
+      <div class="divider"></div>
+
+      <div class="cols-2" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="card">
+            <h3><span class="accent2">📐</span> Organización del código</h3>
+            <p>¿Respetás la estructura existente? ¿El código es claro y legible?</p>
+          </div>
+          <div class="card">
+            <h3><span class="accent">💬</span> Claridad de commits</h3>
+            <p>¿Los mensajes son descriptivos y atómicos?</p>
+          </div>
+          <div class="card">
+            <h3><span class="accent4">⚙️</span> Implementación</h3>
+            <p>¿Los endpoints funcionan según lo especificado?</p>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="card">
+            <h3><span class="accent3">🛡️</span> Manejo de errores</h3>
+            <p>¿Usás los códigos HTTP correctos? ¿Pensás en los casos borde?</p>
+          </div>
+          <div class="card">
+            <h3><span class="warn">🧠</span> Razonamiento</h3>
+            <p>¿Se entiende por qué tomaste cada decisión técnica?</p>
+          </div>
+          <div class="callout callout-green" style="font-size:.78rem">
+            ✅ <span>Si encontrás algo mejorable en el código base, podés refactorizarlo — ¡contanos en el PR!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 13 — NOTA FINAL
+    ========================================================= -->
+    <div class="slide slide-cover" id="s12" style="background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(63,185,80,.1) 0%,transparent 70%), var(--surface)">
+      <span class="tag" style="border-color:var(--accent2);color:var(--accent2)">Nota final</span>
+      <h1 style="font-size:1.8rem;max-width:600px;line-height:1.3">El objetivo <span style="color:var(--accent2)">no es</span> llegar a una solución perfecta</h1>
+      <p class="subtitle" style="max-width:540px;margin-top:10px">
+        Queremos entender cómo <strong style="color:var(--text)">pensás</strong>, cómo <strong style="color:var(--text)">organizás</strong> tu trabajo y cómo <strong style="color:var(--text)">explicás</strong> tus decisiones.
+      </p>
+      <div class="pills" style="margin-top:24px">
+        <span class="pill pill-green">Razonamiento &gt; Perfección</span>
+        <span class="pill pill-blue">Claridad &gt; Complejidad</span>
+        <span class="pill pill-purple">¡Mucho éxito! 🚀</span>
+      </div>
+    </div>
+
+  </div><!-- /#deck -->
+  </div><!-- /#deck-wrapper -->
+
+  <!-- Navigation -->
+  <div id="nav">
+    <button class="nav-btn" id="btn-prev" aria-label="Anterior" disabled>&#8592;</button>
+    <div id="slide-dots"></div>
+    <button class="nav-btn" id="btn-next" aria-label="Siguiente">&#8594;</button>
+  </div>
+  <span id="slide-counter"></span>
+  <span id="hint">&#8592; &#8594; para navegar &middot; Espacio para avanzar</span>
+</div><!-- /#app -->
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total  = slides.length;
+  let current  = 0;
+
+  const btnPrev    = document.getElementById('btn-prev');
+  const btnNext    = document.getElementById('btn-next');
+  const counter    = document.getElementById('slide-counter');
+  const progressBar= document.getElementById('progress-bar');
+  const dotsEl     = document.getElementById('slide-dots');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', `Ir a la slide ${i + 1}`);
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function updateUI() {
+    const dots = dotsEl.querySelectorAll('.dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    counter.textContent = `${current + 1} / ${total}`;
+    progressBar.style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  function goTo(idx) {
+    if (idx === current) return;
+    const prev = slides[current];
+    prev.classList.add('exit');
+    prev.classList.remove('active');
+    setTimeout(() => prev.classList.remove('exit'), 380);
+
+    current = idx;
+    slides[current].classList.add('active');
+    updateUI();
+  }
+
+  btnPrev.addEventListener('click', () => { if (current > 0)         goTo(current - 1); });
+  btnNext.addEventListener('click', () => { if (current < total - 1) goTo(current + 1); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ')  { e.preventDefault(); if (current < total - 1) goTo(current + 1); }
+    if (e.key === 'ArrowLeft')                     { e.preventDefault(); if (current > 0)         goTo(current - 1); }
+  });
+
+  // Swipe on touch devices
+  let touchStartX = 0;
+  document.getElementById('deck').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX, { passive: true });
+  document.getElementById('deck').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) dx < 0 ? btnNext.click() : btnPrev.click();
+  }, { passive: true });
+
+  updateUI();
+
+  // Scale deck to fill viewport maintaining 16:9
+  function scaleDeck() {
+    const deck = document.getElementById('deck');
+    const W = 1280, H = 720;
+    const scaleX = window.innerWidth  / W;
+    const scaleY = window.innerHeight / H;
+    const scale  = Math.min(scaleX, scaleY);
+    deck.style.transform       = `scale(${scale})`;
+    deck.style.transformOrigin = 'top left';
+    const wrapper = document.getElementById('deck-wrapper');
+    wrapper.style.width  = window.innerWidth  + 'px';
+    wrapper.style.height = window.innerHeight + 'px';
+    // Center the scaled deck inside the wrapper
+    const offsetX = (window.innerWidth  - W * scale) / 2;
+    const offsetY = (window.innerHeight - H * scale) / 2;
+    deck.style.position = 'absolute';
+    deck.style.left = offsetX + 'px';
+    deck.style.top  = offsetY + 'px';
+  }
+  scaleDeck();
+  window.addEventListener('resize', scaleDeck);
+</script>
+</body>
+</html>
