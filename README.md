@@ -106,7 +106,21 @@ Una factura está vencida cuando cumple **ambas** condiciones:
 
 ---
 
-### Tarea 2 — `POST /reminders/:invoiceId`
+Tarea 2 — POST /reminders/:invoiceId
+Crear un endpoint que simule el envío de un recordatorio de pago.
+
+El endpoint debe:
+
+Verificar que la factura exista — responder 404 si no se encuentra
+Marcar reminderSent = true en la factura
+Simular el envío con un console.log
+Respuesta esperada (200):
+
+{
+  "message": "Recordatorio enviado a Empresa ACME",
+  "invoice": { ... }
+}
+Sugerencia: Revisá el código existente con atención antes de implementar este endpoint. Puede haber comportamientos inesperados.### Tarea 2 — `POST /reminders/:invoiceId`
 
 Crear un endpoint que simule el envío de un recordatorio de pago.
 
