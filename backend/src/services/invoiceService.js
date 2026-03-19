@@ -22,8 +22,34 @@ function getById(invoiceId) {
   return invoices.find(i => i.id == invoiceId);
 }
 
+function isValidDate(date) {
+  return date instanceof Date && !isNaN(date);
+}
+
 function create(data) {
   const invoices = getAllInvoices();
+
+  if(!data.clientName) throw Object.assign(
+  new Error('El nombre del cliente es obligatorio'),
+    {
+      status: 400,
+      code: "CLIENT_NAME_NOT_FOUND",
+      timestamp: new Date().toISOString()
+    } );
+
+  if(data.amount<=0) throw Object.assign(new Error('El monto debe ser superior a cero'),
+    {
+      status: 400,
+      code: "INVALID_AMMOUNT",
+      timestamp: new Date().toISOString()
+    } );
+
+  if(!isValidDate(data.dueDate)) throw Object.assign(new Error('Formato de fecha para plazo inválido'),
+    {
+      status: 400,
+      code: "INVALID_DATE_FORMAT",
+      timestamp: new Date().toISOString()
+    } );
 
   const newInvoice = {
     id: invoices.length + 1,
@@ -68,8 +94,19 @@ function canSendReminder(invoice) {
 
 function sendReminder(invoiceId) {
   const thisInvoice = getById(invoiceId);
-  if(!thisInvoice) throw new Error ('Factura no encontrada');
-  if(thisInvoice.reminderSent) throw new Error ('Recordatorio previamente enviado');
+  if(!thisInvoice) throw new Object.assign(Error ('Factura no encontrada'),
+    {
+      status: 404,
+      code: "INVOICE_NOT_FOUND",
+      timestamp: new Date().toISOString()
+    } );
+
+  if(thisInvoice.reminderSent) throw new Object.assign(Error ('Recordatorio previamente enviado'),
+    {
+      status: 409,
+      code: "REMINDER_ALREADY_SENT",
+      timestamp: new Date().toISOString()
+    } );
 
   thisInvoice.reminderSent = true;
 

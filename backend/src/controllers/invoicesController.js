@@ -14,7 +14,7 @@ function createInvoice(req, res) {
     const invoice = invoiceService.create(req.body);
     res.status(201).json(invoice);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear factura' });
+    res.status(error.status).json({ error: error.message, code: error.code });
   }
 }
 
@@ -23,7 +23,7 @@ function getAllOverdue(req, res) {
     const overdueInvoices = invoiceService.findOverdue();
     res.status(200).json(overdueInvoices);
   } catch (error) {
-    res.status(500).json({ error: 'Error al traer la fecha' });
+    res.status(error.status).json({ error: error.message, code: error.code });
   }
 }
 
@@ -34,7 +34,7 @@ function createReminder(req, res) {
     const createdReminder = invoiceService.sendReminder(invoiceId);
     res.status(200).json(createdReminder);
   } catch (error) {
-    res.status(500).json({ error: 'Error creando recordatorio' });
+    res.status(error.status).json({ error: error.message, code: error.code });
   }
 }
 
