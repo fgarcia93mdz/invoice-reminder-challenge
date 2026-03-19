@@ -1,4 +1,4 @@
-const { getAllInvoices, saveInvoices } = require('../db/database');
+const { getAllInvoices, saveInvoices, getAllOverdueInvoices } = require('../db/database');
 
 function getAll() {
   return getAllInvoices();
@@ -11,6 +11,9 @@ function getById(invoiceId) {
   return invoices.find(i => i.id === invoiceId);
 }
 
+function getAllOverdue() {
+  return getAllOverdueInvoices();
+}
 function create(data) {
   const invoices = getAllInvoices();
 
@@ -37,4 +40,4 @@ function canSendReminder(invoice) {
   return !invoice.reminderSent;
 }
 
-module.exports = { getAll, getById, create, canSendReminder };
+module.exports = { getAll, getById, create, canSendReminder, getAllOverdue };

@@ -1,4 +1,4 @@
 const { getAllInvoices, createInvoice } = require('./invoicesController');
-const { getAllOverdueInvoices } = require('./getAllOverdueInvoices.controller');
+const { getAllOverdueInvoicesController } = require('./getAllOverdueInvoices.controller');
 
-module.exports = { getAllInvoices, getAllOverdueInvoices, createInvoice };
+module.exports = { getAllInvoices, getAllOverdueInvoicesController, createInvoice };
