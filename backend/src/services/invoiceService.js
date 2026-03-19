@@ -54,24 +54,24 @@ function canSendReminder(invoice) {
 
 }
 
+// //el controller obtiene el id desde los parámetros, llama al service, valida si la factura existe y devuelve la respuesta correspondiente.
+// function sendReminder(invoiceId) {
+//   const invoices = getAllInvoices();
 
-function sendReminder(invoiceId) {
-  const invoices = getAllInvoices();
-
-  const invoice = invoices.find(i => i.id === Number(invoiceId));
+//   const invoice = invoices.find(i => i.id === Number(invoiceId));
 
 
-  if (!canSendReminder(invoice)) {
-    return null;
-  }
+//   if (!canSendReminder(invoice)) {
+//     return null;
+//   }
 
-  invoice.reminderSent = true;
+//   invoice.reminderSent = true;
 
-  saveInvoices(invoices);
+//   saveInvoices(invoices);
 
-  console.log(`Recordatorio enviado a ${invoice.clientName}`);
+//   console.log(`Recordatorio enviado a ${invoice.clientName}`);
 
-  return invoice;
-}
+//   return invoice;
+// }
 
-module.exports = { getAll, getOverdue, getById, create, canSendReminder };
+module.exports = { getAll, getOverdue, getById, create, canSendReminder};

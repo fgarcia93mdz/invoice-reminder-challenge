@@ -23,10 +23,12 @@ const getOverdueInvoices = (req, res) => {
     const overdue = invoiceService.getOverdue();
 
     res.status(200).json(overdue);
+    console.log(overdue);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener facturas vencidas" });
   }
 };
+
 
 
 module.exports = { getAllInvoices, createInvoice, getOverdueInvoices };
