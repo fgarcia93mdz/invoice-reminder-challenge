@@ -44,9 +44,7 @@ function findOverdue() {
 
   const trimmedDate = splitDate(thisDate.toISOString());
 
-  const firstInvoiceDate = splitDate(invoices[0].dueDate);
-
-  let dueInvoices = invoices.filter( invoice =>
+  return invoices.filter( invoice =>
   {
     const thisInvoiceDate = splitDate(invoice.dueDate);
     if(trimmedDate.year > thisInvoiceDate.year
@@ -56,8 +54,6 @@ function findOverdue() {
       return invoice
     }
   } );
-
-  return { dueInvoices };
 }
 
 // BUG 1: se usa asignación (=) en lugar de comparación (===)

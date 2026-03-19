@@ -15,14 +15,7 @@ function App() {
     getOverdueInvoices()
       .then(setOverdueInvoices)
       .catch(err => setError(err.message));
-
-      console.log(overdueInvoices);
   }, []);
-
-  const fetchOverdueInvoices = () =>
-  {
-    setCheck( true );
-  }
 
   return (
     <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
@@ -56,6 +49,10 @@ function App() {
       </table>
 
       <div>
+        <button onClick={() => console.log( overdueInvoices ) }>
+          Overdue invoices
+        </button>
+
         <button onClick={() => setCheck(true)}>
           Mostrar facturas vencidas
         </button>

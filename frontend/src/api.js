@@ -13,6 +13,5 @@ export async function getOverdueInvoices() {
   if(!response.ok) {
     throw new Error('Error al obtener las facturas facturas');
   }
-  console.log(response);
   return response.json();
 }
