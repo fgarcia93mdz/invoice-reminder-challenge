@@ -4,5 +4,6 @@ const { getAllInvoices, createInvoice } = require('../controllers/invoicesContro
 
 router.get('/', getAllInvoices);
 router.post('/', createInvoice);
+router.get('/', getInvoicesOverdue);
 
 module.exports = router;
