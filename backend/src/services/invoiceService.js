@@ -54,7 +54,7 @@ function canSendReminder(invoice) {
 
 }
 
-// //el controller obtiene el id desde los parámetros, llama al service, valida si la factura existe y devuelve la respuesta correspondiente.
+// 
 // function sendReminder(invoiceId) {
 //   const invoices = getAllInvoices();
 
