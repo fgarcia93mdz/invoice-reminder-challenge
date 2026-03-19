@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getInvoices, getOverdueInvoices, sendReminder } from './api';
+import { getInvoices, getOverdueInvoices, sendReminder, fetchStats } from './api';
 
 function App() {
   const [invoices, setInvoices] = useState([]);
   const [overdueInvoices, setOverdueInvoices] = useState([]);
+  const [stats, setStats] = useState({});
+  const [checkStats, setCheckStats] = useState(false);
   const [check, setCheck] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,6 +29,15 @@ function App() {
       .then(setInvoices)
       .catch(err => setError(err.message));
   };
+
+  const getStats = () =>
+  {
+    setCheckStats(true);
+
+    fetchStats()
+      .then(setStats)
+      .catch( (err) => setError(err.message) );
+  }
 
   return (
     <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
@@ -86,6 +97,28 @@ function App() {
                       <td>{inv.reminderSent ? 'Sí' : 'No'}</td>
                     </tr>
                   ))}
+                </tbody>
+              </table>}
+        <button onClick={() => getStats()}>
+          Mostrar estadísticas
+        </button>
+        {checkStats &&
+              <table border="1" cellPadding="8" cellSpacing="0">
+                <thead>
+                  <tr>
+                    <th>Total</th>
+                    <th>Pendientes</th>
+                    <th>Pagadas</th>
+                    <th>Vencidas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                      <tr key={0}>
+                      <td>{stats.total}</td>
+                      <td>{stats.pending}</td>
+                      <td>{stats.paid}</td>
+                      <td>{stats.overdue}</td>
+                    </tr>
                 </tbody>
               </table>}
       </div>

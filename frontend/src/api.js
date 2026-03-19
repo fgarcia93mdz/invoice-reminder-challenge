@@ -23,3 +23,11 @@ export async function sendReminder(invoiceId) {
   }
   return response.json();
 }
+
+export async function fetchStats() {
+  const response = await fetch(`${API_URL}/invoices/stats`);
+  if(!response.ok) {
+    throw new Error('Error al traer las estadisticas');
+  }
+  return response.json();
+}
