@@ -46,6 +46,46 @@ function getInvoicesOverdue(req, res) {
   }
 }
 
+// Tarea 2 = Enviar recordatorio de pago
+function sendReminder(req, res) {
+  try {
+    const { invoiceId } = req.params;
+    const invoice = invoiceService.getById(invoiceId);
+
+    // verificar que exista la factura
+    if (!invoice) {
+      return res.status(404).json({ 
+        message: "Factura no encontrada" 
+      });
+    }
+
+    // Marcar reminderSent = true en la factura
+    if (!invoiceService.canSendReminder(invoice)) {
+      return res.status(400).json({
+        message: "No se puede enviar recordatorio"
+      });
+    }
+
+    // Simular el envío con un console.log
+    invoice.reminderSent = true;
+    const invoices = invoiceService.getAll();
+    saveInvoices(invoices); 
+
+    console.log(`Recordatorio enviado a ${invoice.clientName}`);
+
+    res.status(200).json({
+      message: `Recordatorio enviado a ${invoice.clientName}`,
+      invoice
+    });
+
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error enviando recordatorio" 
+    });
+  }
+}
+
+
 
 
 module.exports = { getAllInvoices, createInvoice, getInvoicesOverdue };

@@ -6,8 +6,10 @@ function getAll() {
 
 // BUG 2: invoiceId llega como string desde req.params,
 // pero i.id es number en el JSON → === siempre devuelve false
+// CORREGIDO
 function getById(invoiceId) {
   const invoices = getAllInvoices();
+   const id = parseInt(req.params.id)
   return invoices.find(i => i.id === invoiceId);
 }
 
@@ -30,8 +32,9 @@ function create(data) {
 
 // BUG 1: se usa asignación (=) en lugar de comparación (===)
 // invoice.status queda seteado a 'paid' → siempre retorna false
+// CORREGIDO
 function canSendReminder(invoice) {
-  if (invoice.status = 'paid') {
+  if (invoice.status === 'paid') {
     return false;
   }
   return !invoice.reminderSent;
