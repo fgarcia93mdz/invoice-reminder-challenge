@@ -4,6 +4,16 @@ function getAll() {
   return getAllInvoices();
 }
 
+function splitDate(date) {
+  const trimmedDate = date.slice(0,10).split('-');
+
+  const year = trimmedDate[0];
+  const month = trimmedDate[1];
+  const day = trimmedDate[2];
+
+  return { year, month, day }; 
+}
+
 // BUG 2: invoiceId llega como string desde req.params,
 // pero i.id es number en el JSON → === siempre devuelve false
 function getById(invoiceId) {
@@ -30,8 +40,20 @@ function create(data) {
 
 function findOverdue() {
   const invoices = getAllInvoices();
+  const thisDate = new Date();
 
-  const overdueInvoices = invoices.filter( invoice => invoice)
+  const trimmedDate = splitDate(thisDate.toISOString());
+
+  const firstInvoiceDate = splitDate(invoices[0].dueDate);
+
+  let dueInvoices = [];
+
+  if(trimmedDate.year > firstInvoiceDate.year || trimmedDate.month > firstInvoiceDate.month || trimmedDate.day > firstInvoiceDate.day )
+  {
+    dueInvoices.push( invoices[0] );
+  }
+  
+  return { dueInvoices };
 }
 
 // BUG 1: se usa asignación (=) en lugar de comparación (===)
@@ -43,4 +65,4 @@ function canSendReminder(invoice) {
   return !invoice.reminderSent;
 }
 
-module.exports = { getAll, getById, create, canSendReminder };
+module.exports = { getAll, getById, create, canSendReminder, findOverdue };

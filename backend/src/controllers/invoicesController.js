@@ -20,11 +20,11 @@ function createInvoice(req, res) {
 
 function getAllOverdue(req, res) {
   try {
-
+    const thisDate = invoiceService.findOverdue();
+    res.status(200).json(thisDate);
   } catch (error) {
-    
+    res.status(500).json({ error: 'Error al traer la fecha' });
   }
-  
 }
 
-module.exports = { getAllInvoices, createInvoice };
+module.exports = { getAllInvoices, createInvoice, getAllOverdue };
