@@ -80,4 +80,4 @@ function getOverdue(invoice) {
 
 
 
-module.exports = { getAll, getById, create, candSendReminder };
+module.exports = { getAll, getById, create, candSendReminder,getOverdue};

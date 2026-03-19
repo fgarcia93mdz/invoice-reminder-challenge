@@ -18,4 +18,24 @@ function createInvoice(req, res) {
   }
 }
 
-module.exports = { getAllInvoices, createInvoice };
+function getInvoiceOverdue(req, res) {  
+  try {
+    //check como llega el invoiceId
+    const invoice = invoiceService.getById(req.params.invoiceId);
+    console.log(invoice);
+    if (invoice) {
+      if (invoiceService.getOverdue(invoice)) {
+        res.status(200).json({ invoice });
+      } else {
+        res.status(404).json({ error: 'No hay factura vencida' });
+      }
+    } else {
+      res.status(404).json({ error: 'No existe la factura' });
+    } 
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener factura' });
+  }
+} 
+
+
+module.exports = { getAllInvoices, createInvoice , getInvoiceOverdue };
