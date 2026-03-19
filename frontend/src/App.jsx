@@ -42,7 +42,7 @@ function App() {
               <td>${inv.amount.toLocaleString('es-AR')}</td>
               <td>{inv.dueDate}</td>
               <td>{inv.status}</td>
-              <td>{inv.reminderSent ? 'Sí' : 'No'}</td>
+              <td>{inv.reminderSent ? <> Sí <button >Enviar recordatorio</button> </>: 'No'}</td>
             </tr>
           ))}
         </tbody>

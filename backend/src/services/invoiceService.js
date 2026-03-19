@@ -14,11 +14,12 @@ function splitDate(date) {
   return { year, month, day }; 
 }
 
-// BUG 2: invoiceId llega como string desde req.params,
-// pero i.id es number en el JSON → === siempre devuelve false
+// Corregido
+// También podíamos hacer parseInt(invoiceId) pero entendí
+// que el foco era en la diferencia entre igualdad débil y estricta
 function getById(invoiceId) {
   const invoices = getAllInvoices();
-  return invoices.find(i => i.id === invoiceId);
+  return invoices.find(i => i.id == invoiceId);
 }
 
 function create(data) {
@@ -56,13 +57,32 @@ function findOverdue() {
   } );
 }
 
-// BUG 1: se usa asignación (=) en lugar de comparación (===)
-// invoice.status queda seteado a 'paid' → siempre retorna false
+// Corregido
+// Cambiada la asignación por la igualdad (estricta)
 function canSendReminder(invoice) {
-  if (invoice.status = 'paid') {
+  if (invoice.status === 'paid') {
     return false;
   }
   return !invoice.reminderSent;
 }
 
-module.exports = { getAll, getById, create, canSendReminder, findOverdue };
+function sendReminder(invoiceId) {
+  const thisInvoice = getById(invoiceId);
+  if(!thisInvoice) throw new Error ('Factura no encontrada');
+  if(thisInvoice.reminderSent) throw new Error ('Recordatorio previamente enviado');
+
+  thisInvoice.reminderSent = true;
+
+  const allInvoices = getAll();
+
+  allInvoices = allInvoices.map( invoice =>
+  invoice.id === thisInvoice.id
+  ? thisInvoice
+  : invoice );
+  
+  saveInvoices(allInvoices);
+
+  return { 'message': `Recordatorio enviado a ${thisInvoice.clientName}`, "invoice": thisInvoice };
+}
+
+module.exports = { getAll, getById, create, canSendReminder, findOverdue, sendReminder };
