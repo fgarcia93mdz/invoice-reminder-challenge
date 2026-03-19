@@ -16,13 +16,8 @@ function saveInvoices(invoices) {
 }
 
 function getAllOverdueInvoices() {
-  // devuelva todas las facturas vencidas usando.
-// Una factura está vencida cuando cumple ambas condiciones:
-// status es "pending"
-// dueDate es anterior a la fecha actual
-// Respuesta esperada (200):
+
   const invoices = getAllInvoices();
-  console.log('All invoices:', invoices); // Debug: Ver todas las facturas
   const currentDate = new Date();
   return invoices.filter(invoice => 
     invoice.status === "pending" && 
