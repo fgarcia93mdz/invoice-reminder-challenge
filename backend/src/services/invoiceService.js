@@ -28,6 +28,12 @@ function create(data) {
   return newInvoice;
 }
 
+function findOverdue() {
+  const invoices = getAllInvoices();
+
+  const overdueInvoices = invoices.filter( invoice => invoice)
+}
+
 // BUG 1: se usa asignación (=) en lugar de comparación (===)
 // invoice.status queda seteado a 'paid' → siempre retorna false
 function canSendReminder(invoice) {

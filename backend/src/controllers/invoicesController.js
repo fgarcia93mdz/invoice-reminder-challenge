@@ -18,4 +18,13 @@ function createInvoice(req, res) {
   }
 }
 
+function getAllOverdue(req, res) {
+  try {
+
+  } catch (error) {
+    
+  }
+  
+}
+
 module.exports = { getAllInvoices, createInvoice };
