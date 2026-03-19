@@ -15,4 +15,8 @@ function saveInvoices(invoices) {
   fs.writeFileSync(DB_PATH, JSON.stringify(invoices, null, 2));
 }
 
+function getAllOverdueInvoices() {
+  const invoices = getAllInvoices();
+}
+
 module.exports = { getAllInvoices, saveInvoices };

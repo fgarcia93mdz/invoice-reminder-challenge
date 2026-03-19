@@ -1,4 +1,4 @@
-import getAllInvoices from './invoicesController.js';
-import getAllOverdueInvoices from './getAllOverdueInvoices.controller.js';
+const { getAllInvoices, createInvoice } = require('./invoicesController');
+const { getAllOverdueInvoices } = require('./getAllOverdueInvoices.controller');
 
-export { getAllInvoices, getAllOverdueInvoices };
+module.exports = { getAllInvoices, getAllOverdueInvoices, createInvoice };

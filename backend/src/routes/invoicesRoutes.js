@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllInvoices, createInvoice } = require('../controllers/index.controller.js');
+const { getAllOverdueInvoices, getAllInvoices, createInvoice } = require('../controllers/index.controller.js');
 
 router.get('/', getAllInvoices);
 // GET /invoices/overdue
