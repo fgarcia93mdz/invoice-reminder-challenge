@@ -9,8 +9,7 @@ function getAll() {
 // CORREGIDO
 function getById(invoiceId) {
   const invoices = getAllInvoices();
-   const id = parseInt(req.params.id)
-  return invoices.find(i => i.id === invoiceId);
+  return invoices.find(i => i.id === Number(invoiceId));
 }
 
 function create(data) {

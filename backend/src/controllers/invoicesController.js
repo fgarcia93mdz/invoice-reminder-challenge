@@ -85,7 +85,4 @@ function sendReminder(req, res) {
   }
 }
 
-
-
-
-module.exports = { getAllInvoices, createInvoice, getInvoicesOverdue };
+module.exports = { getAllInvoices, createInvoice, getInvoicesOverdue, sendReminder };
