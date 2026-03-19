@@ -1,0 +1,14 @@
+# Dependencias
+node_modules/
+
+# Build de producción
+dist/
+
+# Variables de entorno
+.env
+
+# Base de datos local (se regenera con el seed)
+backend/src/db/data.json
+
+# Logs
+npm-debug.log*

@@ -41,13 +41,43 @@ function create(data) {
 //fix cambio de asignacion por comparacion
 
 function candSendReminder(invoice) {
-  if(invoice.status === 'paid') {
+  if (invoice.status === 'paid') {
     return false;
   }
   return !invoice.reminderSent;
 }
 
 
+/** Agrego getStatus, getDueDateExpired y  getOverdue decidi agregar true o false para un manejo mas rapido en el controller **/
 
 
-module.exports = { getAll, getById, create, canSendReminder };
+
+function getStatus(invoice) {
+  if (invoice.status === "pending") {
+    return true;
+  }
+  return false;
+}
+
+function getDueDateExpired(invoice) {
+  const invoiceDate = new Date(invoice.dueDate);
+  const now = new Date();
+  if (invoiceDate < now) {
+    return true;
+  }
+  return false;
+}
+
+function getOverdue(invoice) {
+  const dueDate = getDueDateExpired(invoice);
+  const status = getStatus(invoice);
+  if (status && dueDate) {
+    return true;
+  }
+  return false;
+}
+
+
+
+
+module.exports = { getAll, getById, create, candSendReminder };
