@@ -15,6 +15,8 @@ function App() {
     getOverdueInvoices()
       .then(setOverdueInvoices)
       .catch(err => setError(err.message));
+
+      console.log(overdueInvoices);
   }, []);
 
   const fetchOverdueInvoices = () =>
