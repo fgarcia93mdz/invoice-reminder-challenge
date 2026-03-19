@@ -46,13 +46,17 @@ function findOverdue() {
 
   const firstInvoiceDate = splitDate(invoices[0].dueDate);
 
-  let dueInvoices = [];
-
-  if(trimmedDate.year > firstInvoiceDate.year || trimmedDate.month > firstInvoiceDate.month || trimmedDate.day > firstInvoiceDate.day )
+  let dueInvoices = invoices.filter( invoice =>
   {
-    dueInvoices.push( invoices[0] );
-  }
-  
+    const thisInvoiceDate = splitDate(invoice.dueDate);
+    if(trimmedDate.year > thisInvoiceDate.year
+      || trimmedDate.month > thisInvoiceDate.month
+      || trimmedDate.day > thisInvoiceDate.day)
+    {
+      return invoice
+    }
+  } );
+
   return { dueInvoices };
 }
 
