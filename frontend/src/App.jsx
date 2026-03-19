@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react';
-import { getInvoices } from './api';
+import { getInvoices, getOverdueInvoices } from './api';
 
 function App() {
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState(null);
+  const[ overdueInvoices, setOverdueInvoices] = useState([]);
 
   useEffect(() => {
     getInvoices()
       .then(setInvoices)
       .catch(err => setError(err.message));
   }, []);
+
+  useEffect(() => {
+  getOverdueInvoices()
+    .then(setOverdueInvoices)
+    .catch(err => setError(err.message));
+}, []);
 
   return (
     <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
@@ -41,6 +48,15 @@ function App() {
           ))}
         </tbody>
       </table>
+        <h2>Facturas vencidas</h2>
+
+          <ul>
+            {overdueInvoices.map(inv => (
+              <li key={inv.id}>
+                {inv.clientName} - ${inv.amount} - Venció el {inv.dueDate}
+              </li>
+            ))}
+          </ul>
     </div>
   );
 }
