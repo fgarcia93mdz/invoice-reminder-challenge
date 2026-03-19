@@ -28,8 +28,7 @@ function getAllOverdue(req, res) {
 }
 
 function createReminder(req, res) {
-  try
-  {
+  try {
     const { invoiceId } = req.params;
     const createdReminder = invoiceService.sendReminder(invoiceId);
     res.status(200).json(createdReminder);
@@ -38,4 +37,13 @@ function createReminder(req, res) {
   }
 }
 
-module.exports = { getAllInvoices, createInvoice, getAllOverdue, createReminder };
+function getStats(req, res) {
+  try {
+    const fetchedStats = invoiceService.fetchStats();
+    res.status(200).json(fetchedStats);
+  } catch(error) {
+    res.status(error.status).json({ error: error.message, code: error.code });
+  }
+}
+
+module.exports = { getAllInvoices, createInvoice, getAllOverdue, createReminder, getStats };

@@ -121,4 +121,22 @@ function sendReminder(invoiceId) {
   return { 'message': `Recordatorio enviado a ${thisInvoice.clientName}`, "invoice": thisInvoice };
 }
 
-module.exports = { getAll, getById, create, canSendReminder, findOverdue, sendReminder };
+function fetchStats() {
+  const allInvoices = getAll();
+
+  const overdueInvoices = findOverdue();
+
+  const results = allInvoices.reduce( (acc, x) => {
+    acc.total++;
+
+    if(x.status==='pending') acc.pending++;
+    if(x.status==='paid') acc.paid++;
+    if(overdueInvoices.find(y => y.id === x.id)) acc.overdue++;
+
+    return acc;
+  }, { 'total': 0, 'pending': 0, 'paid': 0, 'overdue': 0 })
+
+  return results;
+}
+
+module.exports = { getAll, getById, create, canSendReminder, findOverdue, sendReminder, fetchStats };
