@@ -75,12 +75,11 @@ function sendReminder(invoiceId) {
 
   const allInvoices = getAll();
 
-  allInvoices = allInvoices.map( invoice =>
-  invoice.id === thisInvoice.id
+  let newInvoices = allInvoices.map( invoice => invoice.id == thisInvoice.id
   ? thisInvoice
   : invoice );
   
-  saveInvoices(allInvoices);
+  saveInvoices(newInvoices);
 
   return { 'message': `Recordatorio enviado a ${thisInvoice.clientName}`, "invoice": thisInvoice };
 }

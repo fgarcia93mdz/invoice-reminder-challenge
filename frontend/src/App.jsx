@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getInvoices, getOverdueInvoices } from './api';
+import { getInvoices, getOverdueInvoices, sendReminder } from './api';
 
 function App() {
   const [invoices, setInvoices] = useState([]);
@@ -16,6 +16,17 @@ function App() {
       .then(setOverdueInvoices)
       .catch(err => setError(err.message));
   }, []);
+
+  const updateReminder = (invoiceId) =>
+  {
+    sendReminder(invoiceId)
+      .then((res) => alert(res.message))
+      .catch(err => setError(err.message));
+
+    getInvoices()
+      .then(setInvoices)
+      .catch(err => setError(err.message));
+  };
 
   return (
     <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
@@ -42,17 +53,13 @@ function App() {
               <td>${inv.amount.toLocaleString('es-AR')}</td>
               <td>{inv.dueDate}</td>
               <td>{inv.status}</td>
-              <td>{inv.reminderSent ? <> Sí <button >Enviar recordatorio</button> </>: 'No'}</td>
+              <td>{inv.reminderSent ? 'Si' : <> No <button onClick={() => updateReminder(inv.id)}>Enviar recordatorio</button> </>}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div>
-        <button onClick={() => console.log( overdueInvoices ) }>
-          Overdue invoices
-        </button>
-
         <button onClick={() => setCheck(true)}>
           Mostrar facturas vencidas
         </button>
