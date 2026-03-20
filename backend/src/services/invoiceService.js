@@ -1,4 +1,6 @@
-const { getAllInvoices, saveInvoices } = require('../db/database');
+// const { getAllInvoices, saveInvoices } = require('../db/database');
+
+const { getAllInvoices, saveInvoices } = require("../db/database");
 
 function getAll() {
   return getAllInvoices();
@@ -6,9 +8,18 @@ function getAll() {
 
 // BUG 2: invoiceId llega como string desde req.params,
 // pero i.id es number en el JSON → === siempre devuelve false
+// function getById(invoiceId) {
+//   const invoices = getAllInvoices();
+//   return invoices.find(i => i.id === invoiceId);
+// }
+
+// version corregida de getById conversion a number
+
 function getById(invoiceId) {
   const invoices = getAllInvoices();
-  return invoices.find(i => i.id === invoiceId);
+  const id = Number(invoiceId);
+
+  return invoices.find(i => i.id === id);
 }
 
 function create(data) {
@@ -30,11 +41,21 @@ function create(data) {
 
 // BUG 1: se usa asignación (=) en lugar de comparación (===)
 // invoice.status queda seteado a 'paid' → siempre retorna false
+// function canSendReminder(invoice) {
+//   if (invoice.status = 'paid') {
+//     return false;
+//   }
+//   return !invoice.reminderSent;
+// }
+
+//versión corregida de canSendReminder se compara en lugar de asignar el valor 
 function canSendReminder(invoice) {
-  if (invoice.status = 'paid') {
+  if (invoice.status === 'paid') {
     return false;
   }
   return !invoice.reminderSent;
 }
 
-module.exports = { getAll, getById, create, canSendReminder };
+
+// module.exports = { getAll, getById, create, canSendReminder };
+export { getAll, getById, create, canSendReminder };
