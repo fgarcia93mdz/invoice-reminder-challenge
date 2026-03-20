@@ -1,4 +1,5 @@
 // const invoiceService = require('../services/invoiceService');
+import * as invoiceService from '../services/invoiceService.js';
 
 function getAllInvoices(req, res) {
   try {
@@ -17,4 +18,13 @@ function createInvoice(req, res) {
     res.status(500).json({ error: 'Error al crear factura' });
   }
 }
-export { getAllInvoices, createInvoice };
+function getOverdueInvoices(req, res) {
+  try {
+    const overdueInvoices = invoiceService.getOverdueInvoices();
+    res.status(200).json(overdueInvoices);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener facturas vencidas' });
+  }
+}
+
+export { getAllInvoices, createInvoice ,getOverdueInvoices};

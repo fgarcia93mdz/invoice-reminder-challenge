@@ -1,12 +1,15 @@
 // const express = require('express');
 import express from 'express';
 import { createInvoice, getAllInvoices } from '../controllers/invoicesController.js';
+import { getOverdueInvoices } from '../services/invoiceService.js';
 
 const router = express.Router();
 // const { getAllInvoices, createInvoice } = require('../controllers/invoicesController');
 
-router.get('/', getAllInvoices);
-router.post('/', createInvoice);
+router.get('/getAll', getAllInvoices);
+router.post('/create', createInvoice);
+router.get('/overdue', getOverdueInvoices);
+
 
 // module.exports = router;
 export default router;

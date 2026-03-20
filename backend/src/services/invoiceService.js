@@ -1,6 +1,6 @@
 // const { getAllInvoices, saveInvoices } = require('../db/database');
 
-const { getAllInvoices, saveInvoices } = require("../db/database");
+import { getAllInvoices, saveInvoices } from '../db/database.js';
 
 function getAll() {
   return getAllInvoices();
@@ -56,6 +56,19 @@ function canSendReminder(invoice) {
   return !invoice.reminderSent;
 }
 
+// creo la funcion facturas vencidas, filtro las que tienen estado pendiente y la fecha de vencimiento es menor a la fecha actual
+function getOverdueInvoices() {
+  const invoices = getAllInvoices();
+  const today = new Date();
+
+  return invoices.filter(invoice => {
+    return (
+      invoice.status === 'pending' &&
+      new Date(invoice.dueDate) < today
+    );
+  });
+}
+
 
 // module.exports = { getAll, getById, create, canSendReminder };
-export { getAll, getById, create, canSendReminder };
+export { getAll, getById, create, canSendReminder ,getOverdueInvoices};
