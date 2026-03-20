@@ -21,13 +21,28 @@ function getById(invoiceId) {
 
   return invoices.find(i => i.id === id);
 }
-
+//actualizo create
 function create(data) {
   const invoices = getAllInvoices();
 
+  // chequeo que el campo clientName exista y no este vacio, si no lanzo un error
+  if (!data.clientName || !data.clientName.trim()) {
+    throw new Error('El campo clientName es obligatorio');
+  }
+
+  //chequeo que el monto sea un numero y que sea mayor a 0
+  if (typeof data.amount !== 'number' || data.amount <= 0) {
+    throw new Error('El campo amount debe ser mayor a 0');
+  }
+
+  //chequeo que la fecha exista y que el tipo sea valido
+  if (!data.dueDate || isNaN(new Date(data.dueDate).getTime())) {
+    throw new Error('El campo dueDate debe ser una fecha válida');
+  }
+
   const newInvoice = {
     id: invoices.length + 1,
-    clientName: data.clientName,
+    clientName: data.clientName.trim(),
     amount: data.amount,
     dueDate: data.dueDate,
     status: data.status || 'pending',
