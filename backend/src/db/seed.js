@@ -1,4 +1,6 @@
-const { getAllInvoices, saveInvoices } = require('./database');
+// saco los require ya que no aplican para es modules // const { getAllInvoices, saveInvoices } = require('./database');
+
+import { getAllInvoices, saveInvoices } from "./database.js";
 
 function seed() {
   const invoices = getAllInvoices();
@@ -52,4 +54,4 @@ function seed() {
   console.log('Seed ejecutado: 5 facturas cargadas.');
 }
 
-module.exports = seed;
+export default seed;

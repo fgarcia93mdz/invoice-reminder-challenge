@@ -1,4 +1,4 @@
-const invoiceService = require('../services/invoiceService');
+// const invoiceService = require('../services/invoiceService');
 
 function getAllInvoices(req, res) {
   try {
@@ -17,5 +17,4 @@ function createInvoice(req, res) {
     res.status(500).json({ error: 'Error al crear factura' });
   }
 }
-
-module.exports = { getAllInvoices, createInvoice };
+export { getAllInvoices, createInvoice };

@@ -1,7 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const seed = require('./db/seed');
-const invoicesRoutes = require('./routes/invoicesRoutes');
+// const express = require('express');
+// const cors = require('cors');
+// const seed = require('./db/seed');
+// const invoicesRoutes = require('./routes/invoicesRoutes');
+import express from 'express';
+import cors from 'cors';
+import seed from './db/seed.js';
+import invoicesRoutes from './routes/invoicesRoutes.js';
+
 
 const app = express();
 const PORT = 3001;
