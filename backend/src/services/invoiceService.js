@@ -68,7 +68,28 @@ function getOverdueInvoices() {
     );
   });
 }
+//creo la funcion para enviar recordatorio, busco la factura por id, si no existe retorno null, si existe seteo reminderSent a true y  guardo los cambios
+
+function sendReminder(invoiceId) {
+  const invoices = getAllInvoices();
+  const id = Number(invoiceId);
+
+  const index = invoices.findIndex(invoice => invoice.id === id);
+
+  console.log('valor de index:', index);
+
+  if (index === -1) {
+    return null;
+  }
+
+  invoices[index].reminderSent = true;
+
+  saveInvoices(invoices);
+  console.log(`Recordatorio enviado a ${invoices[index].clientName}`);
+
+  return invoices[index];
+}
 
 
 // module.exports = { getAll, getById, create, canSendReminder };
-export { getAll, getById, create, canSendReminder ,getOverdueInvoices};
+export { getAll, getById, create, canSendReminder ,getOverdueInvoices,sendReminder};

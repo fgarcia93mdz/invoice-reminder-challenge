@@ -27,4 +27,22 @@ function getOverdueInvoices(req, res) {
   }
 }
 
+function sendReminder(req, res) {
+  try {
+    const invoice = invoiceService.sendReminder(req.params.invoiceId);
+
+    if (!invoice) {
+      return res.status(404).json({ error: 'No existe la factura' });
+    }
+
+    res.status(200).json({
+      message: `Recordatorio enviado a ${invoice.clientName}`,
+      invoice,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al enviar recordatorio' });
+  }
+}
+
+
 export { getAllInvoices, createInvoice ,getOverdueInvoices};
