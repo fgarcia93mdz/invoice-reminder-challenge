@@ -1,7 +1,6 @@
 // const express = require('express');
 import express from 'express';
-import { createInvoice, getAllInvoices } from '../controllers/invoicesController.js';
-import { getOverdueInvoices, sendReminder } from '../services/invoiceService.js';
+import { createInvoice, getAllInvoices, getOverdueInvoices,sendReminder } from '../controllers/invoicesController.js';
 
 const router = express.Router();
 // const { getAllInvoices, createInvoice } = require('../controllers/invoicesController');

@@ -72,7 +72,7 @@ function canSendReminder(invoice) {
 }
 
 // creo la funcion facturas vencidas, filtro las que tienen estado pendiente y la fecha de vencimiento es menor a la fecha actual
-function getOverdueInvoices() {
+function getOverdueInvoicesService() { // cambio de nombre para evitar confusión con el controller
   const invoices = getAllInvoices();
   const today = new Date();
 
@@ -107,4 +107,4 @@ function sendReminder(invoiceId) {
 
 
 // module.exports = { getAll, getById, create, canSendReminder };
-export { getAll, getById, create, canSendReminder ,getOverdueInvoices,sendReminder};
+export { getAll, getById, create, canSendReminder ,getOverdueInvoicesService,sendReminder};

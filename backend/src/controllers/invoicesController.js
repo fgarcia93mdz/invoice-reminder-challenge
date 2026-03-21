@@ -19,21 +19,18 @@ function createInvoice(req, res) {
   }
 }
 function getOverdueInvoices(req, res) {
+  console.log('entró al controller overdue');
   try {
-    const overdueInvoices = invoiceService.getOverdueInvoices();
-    if (!invoice) {
-      return res.status(404).json({ error: 'No existe la factura' });
-    }
-    res.status(200).json({
-      message: `Recordatorio enviado a ${invoice.clientName}`,
-      invoice,
-    });
+    const overdueInvoices = invoiceService.getOverdueInvoicesService();
+    res.status(200).json(overdueInvoices);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error al obtener facturas vencidas' });
   }
 }
 
 function sendReminder(req, res) {
+  
   try {
     const invoice = invoiceService.sendReminder(req.params.invoiceId);
 
